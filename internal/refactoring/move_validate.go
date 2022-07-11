@@ -51,39 +51,39 @@ func ValidateMoves(stmts []MoveStatement, rootCfg *configs.Config, declaredInsts
 		// Earlier code that constructs MoveStatement values should ensure that
 		// both stmt.From and stmt.To always belong to the same statement and
 		// thus to the same module.
-		stmtMod, fromCallSteps := stmt.From.ModuleCallTraversals()
-		_, toCallSteps := stmt.To.ModuleCallTraversals()
+		stmtMod, _ := stmt.From.ModuleCallTraversals()
+		// _, toCallSteps := stmt.To.ModuleCallTraversals()
 
-		modCfg := rootCfg.Descendent(stmtMod)
-		if !stmt.Implied {
-			// Implied statements can cross module boundaries because we
-			// generate them only for changing instance keys on a single
-			// resource. They happen to be generated _as if_ they were written
-			// in the root module, but the source and destination are always
-			// in the same module anyway.
-			if pkgAddr := callsThroughModulePackage(modCfg, fromCallSteps); pkgAddr != nil {
-				diags = diags.Append(&hcl.Diagnostic{
-					Severity: hcl.DiagError,
-					Summary:  "Cross-package move statement",
-					Detail: fmt.Sprintf(
-						"This statement declares a move from an object declared in external module package %q. Move statements can be only within a single module package.",
-						pkgAddr,
-					),
-					Subject: stmt.DeclRange.ToHCL().Ptr(),
-				})
-			}
-			if pkgAddr := callsThroughModulePackage(modCfg, toCallSteps); pkgAddr != nil {
-				diags = diags.Append(&hcl.Diagnostic{
-					Severity: hcl.DiagError,
-					Summary:  "Cross-package move statement",
-					Detail: fmt.Sprintf(
-						"This statement declares a move to an object declared in external module package %q. Move statements can be only within a single module package.",
-						pkgAddr,
-					),
-					Subject: stmt.DeclRange.ToHCL().Ptr(),
-				})
-			}
-		}
+		// modCfg := rootCfg.Descendent(stmtMod)
+		// if !stmt.Implied {
+		// 	// Implied statements can cross module boundaries because we
+		// 	// generate them only for changing instance keys on a single
+		// 	// resource. They happen to be generated _as if_ they were written
+		// 	// in the root module, but the source and destination are always
+		// 	// in the same module anyway.
+		// 	if pkgAddr := callsThroughModulePackage(modCfg, fromCallSteps); pkgAddr != nil {
+		// 		diags = diags.Append(&hcl.Diagnostic{
+		// 			Severity: hcl.DiagError,
+		// 			Summary:  "Cross-package move statement",
+		// 			Detail: fmt.Sprintf(
+		// 				"This statement declares a move from an object declared in external module package %q. Move statements can be only within a single module package.",
+		// 				pkgAddr,
+		// 			),
+		// 			Subject: stmt.DeclRange.ToHCL().Ptr(),
+		// 		})
+		// 	}
+		// 	if pkgAddr := callsThroughModulePackage(modCfg, toCallSteps); pkgAddr != nil {
+		// 		diags = diags.Append(&hcl.Diagnostic{
+		// 			Severity: hcl.DiagError,
+		// 			Summary:  "Cross-package move statement",
+		// 			Detail: fmt.Sprintf(
+		// 				"This statement declares a move to an object declared in external module package %q. Move statements can be only within a single module package.",
+		// 				pkgAddr,
+		// 			),
+		// 			Subject: stmt.DeclRange.ToHCL().Ptr(),
+		// 		})
+		// 	}
+		// }
 
 		for _, modInst := range declaredInsts.InstancesForModule(stmtMod) {
 
