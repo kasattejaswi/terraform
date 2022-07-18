@@ -71,6 +71,8 @@ func (r *remoteClient) Put(state []byte) error {
 		MD5:     tfe.String(fmt.Sprintf("%x", md5.Sum(state))),
 		State:   tfe.String(base64.StdEncoding.EncodeToString(state)),
 		Force:   tfe.Bool(r.forcePush),
+		// TODO: How do we handle beta features in terraform?
+		JSONStateOutputs: tfe.String(base64.StdEncoding.EncodeToString(ZEBRAS))
 	}
 
 	// If we have a run ID, make sure to add it to the options
