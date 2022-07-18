@@ -5,9 +5,11 @@ import (
 	"context"
 	"crypto/md5"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 
 	tfe "github.com/hashicorp/go-tfe"
+	"github.com/hashicorp/terraform/internal/command/jsonstate"
 	"github.com/hashicorp/terraform/internal/states/remote"
 	"github.com/hashicorp/terraform/internal/states/statefile"
 	"github.com/hashicorp/terraform/internal/states/statemgr"
@@ -64,6 +66,16 @@ func (r *remoteClient) Put(state []byte) error {
 	if err != nil {
 		return fmt.Errorf("Error reading state: %s", err)
 	}
+
+	foo, err := jsonstate.MarshalOutputs(stateFile.State.RootModule().OutputValues)
+	if err != nil {
+		return fmt.Errorf("error reading output values: %s", err)
+	}
+	o, err := json.Marshal(foo)
+	if err != nil {
+		return fmt.Errorf("error reading output values: %s", err)
+	}
+	return fmt.Errorf("output >> %s", o)
 
 	options := tfe.StateVersionCreateOptions{
 		Lineage: tfe.String(stateFile.Lineage),
